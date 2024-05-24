@@ -1,8 +1,22 @@
+@font-face {
+    font-family: 'NunitoSans';
+    src: url('/fonts/NunitoSans/NunitoSans-VariableFont_YTLC\,opsz\,wdth\,wght.ttf') format('ttf');
+    font-weight: normal;
+    font-style: normal;
+} 
+
+h4 {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
 body {
     margin: 0;
     color: white;
+    font-family: 'NunitoSans', sans-serif;
 }
-.container {  display: grid;
+.container {  
+    display: grid;
     grid-template-columns: 70px 1fr;
     grid-template-rows: 1fr;
     gap: 0px 0px;
@@ -12,6 +26,26 @@ body {
       "navbar-left container-right";
 }
   
+
+.blockContainerWide {
+    padding: 20px;
+    width: calc(100% - 80px);
+    overflow-x: hidden;
+    background-color: #26292F;
+    height: 300px;
+    border-radius: 11px;
+}
+
+.blockContainerWide h2 {
+    margin-top: 0px;
+}
+
+
+#homeIcon {
+    width: 25px;
+    height: 25px;
+}
+
 .navbar-left {  
     display: grid;
     grid-template-columns: 1fr;
@@ -28,7 +62,32 @@ body {
 .navbar-left-bottom { 
     grid-area: navbar-left-bottom; 
     background-color: #26292F;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+.navbar-left-bottom div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 48px;
+    width: 48px;
+    border-radius: 11px;
+    cursor: pointer;
+}
+
+.navbar-left-bottom svg {
+    width: 25px;
+    height: 25px;
+}
+
+.navbar-left-bottom div:hover {
+    background-color: #383d48;
+    transition: background-color 60ms linear;
+    filter: drop-shadow(0px 2px 3px #00000060);
+}
+
   
 .container-right {  
     display: grid;
@@ -43,6 +102,7 @@ body {
 }
 
 .navbar-main { 
+    margin-top: 55px;
     grid-area: navbar-main; 
     display: flex;
     flex-direction: column;
@@ -54,42 +114,85 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 55px;
-    width: 55px;
-    border-radius: 14px;
+    height: 48px;
+    width: 48px;
+    border-radius: 11px;
     cursor: pointer;
 }
 
-.navbar-left-bottom {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.navbar-main div:hover {
+    background-color: #383d48;
+    transition: background-color 60ms linear;
+    filter: drop-shadow(0px 2px 3px #00000060);
 }
 
-.navbar-left-bottom svg {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 55px;
-    width: 55px;
-    border-radius: 14px;
-    cursor: pointer;
-}
 
 .selected {
-    background-color: #424956;
+    background-color: #424855;
     border-color: none;
     border: none;
+    filter: drop-shadow(0px 2px 1px #00000020);
 }
 
+.selected svg {
+    color: white;
+}
+
+.view {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+}
+
+.navbaricon {
+    color: #c7d2d2;
+}
 
 .navbar-top { 
     grid-area: navbar-top; 
     background-color: #26292F;
+    display: grid; 
+    grid-template-columns: 600px 1fr; 
+    grid-template-rows: 1fr; 
+    gap: 0px 0px; 
+    grid-template-areas: 
+        "navbar-top-text navbar-top-drag"; 
+}
+
+.navbar-top-text { 
+    display: flex;
+    padding-left: 23px;
+    grid-area: navbar-top-text; 
+    -webkit-app-select: none;
+    -webkit-app-region: drag;
+    align-items: center;
+}
+
+.navbar-top-text p {
+    margin: 0px;
+    font-weight: 600;
+    margin-top: 3px;
+}
+
+.navbar-top-drag { 
+    grid-area: navbar-top-drag; 
+    -webkit-app-select: none;
+    -webkit-app-region: drag;
 }
 
 .main-container { 
+    position: relative;
     grid-area: main-container; 
+    background-color: #26292F;
+}
+
+.main-container-inner { 
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: 100%;
     background-color: #17181C;
+    border-top-left-radius: 23px;
 }
   
