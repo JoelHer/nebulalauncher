@@ -1,0 +1,95 @@
+body {
+    margin: 0;
+    color: white;
+}
+.container {  display: grid;
+    grid-template-columns: 70px 1fr;
+    grid-template-rows: 1fr;
+    gap: 0px 0px;
+    grid-auto-flow: row;
+    height: 100vh;
+    grid-template-areas:
+      "navbar-left container-right";
+}
+  
+.navbar-left {  
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 70px;
+    gap: 0px 0px;
+    grid-auto-flow: row;
+    grid-template-areas:
+        "navbar-main"
+        "navbar-left-bottom";
+    grid-area: navbar-left;
+    background-color: #26292F;
+}
+  
+.navbar-left-bottom { 
+    grid-area: navbar-left-bottom; 
+    background-color: #26292F;
+}
+  
+.container-right {  
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 50px 1fr;
+    gap: 0px 0px;
+    grid-auto-flow: row;
+    grid-template-areas:
+      "navbar-top"
+      "main-container";
+    grid-area: container-right;
+}
+
+.navbar-main { 
+    grid-area: navbar-main; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7.5px;
+}
+
+.navbar-main div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 55px;
+    width: 55px;
+    border-radius: 14px;
+    cursor: pointer;
+}
+
+.navbar-left-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.navbar-left-bottom svg {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 55px;
+    width: 55px;
+    border-radius: 14px;
+    cursor: pointer;
+}
+
+.selected {
+    background-color: #424956;
+    border-color: none;
+    border: none;
+}
+
+
+.navbar-top { 
+    grid-area: navbar-top; 
+    background-color: #26292F;
+}
+
+.main-container { 
+    grid-area: main-container; 
+    background-color: #17181C;
+}
+  
