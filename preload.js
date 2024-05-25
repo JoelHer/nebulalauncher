@@ -7,5 +7,7 @@ contextBridge.exposeInMainWorld('versions', {
 })
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  setTitle: (title) => ipcRenderer.send('set-title', title)
+  setTitle: (title) => ipcRenderer.send('set-title', title),
+  getRecentGames: () => ipcRenderer.invoke('games:get-recents'),
+  getReadyStatus: () => ipcRenderer.invoke('getReadyStatus')
 })
