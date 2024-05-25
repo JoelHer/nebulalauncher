@@ -1,5 +1,13 @@
-const { app, BrowserWindow, screen, Notification } = require('electron')
-const path = require('path')
+const { app, BrowserWindow, screen, Notification, ipcMain } = require('electron')
+const path = require('node:path')
+
+function handleSetTitle (event, title) {
+    console.log("set-title: ",title)
+    const webContents = event.sender
+    const win = BrowserWindow.fromWebContents(webContents)
+    const tString = title.toString()
+    win.setTitle(tString)
+}
 
 const createWindow = () => {
     const primaryDisplay = screen.getPrimaryDisplay()
@@ -10,7 +18,8 @@ const createWindow = () => {
         minHeight: 600,
         minWidth: 800,
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, 'preload.js'), 
+            nodeIntegration: true
         },
         frame: false,
         titleBarStyle: 'hidden',
@@ -18,17 +27,14 @@ const createWindow = () => {
             color: '#26292F',
             symbolColor: '#c7d2d2',
             height: 50,
-        },
-        webPreferences: {
-            nodeIntegration: true
         }
     })
   
     win.loadFile('index.html')
 }
 
-const NOTIFICATION_TITLE = 'Nebula Launcher Closed'
-const NOTIFICATION_BODY = 'Nebula Launcher has closed, and will not be running in the background. Disable this notification in the settings, or click this notification.'
+const NOTIFICATION_TITLE = 'Nebula Launcher running in tray'
+const NOTIFICATION_BODY = 'Nebula Launcher has closed, and will be running in the background. Disable this notification in the settings, or click this notification.'
 
 function showNotification () {
     new Notification({ title: NOTIFICATION_TITLE, body: NOTIFICATION_BODY }).show()
@@ -36,12 +42,11 @@ function showNotification () {
 
 app.on('window-all-closed', () => {
     showNotification()
-    if (process.platform !== 'darwin') app.quit()
 })
 
 app.whenReady().then(() => {
+    ipcMain.on('set-title', handleSetTitle)
     createWindow()
-  
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })

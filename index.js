@@ -3,10 +3,13 @@ langmap.set("viewname_home", "Home")
 langmap.set("viewname_library", "Library")
 langmap.set("viewname_settings", "Settings")
 langmap.set("settings_title_general", "General settings")
-langmap.set("home_title", "Welcome Home!")
+langmap.set("home_title", "Recently Played")
+langmap.set("home_title_recent", "Recently Played")
+langmap.set("home_title_currentfree", "Currently Free")
 
 function nav(_t) {
     document.getElementById("pagetitle").innerText = langmap.get("viewname_"+_t.id)
+    window.electronAPI.setTitle("Nebula Launcher - "+ langmap.get("viewname_"+_t.id))
     const els = document.getElementsByClassName("selected")
     try {
         for (i in els)  {
@@ -19,6 +22,8 @@ function nav(_t) {
     showView(_t.id+"View")
 }
 
+const information = document.getElementById('info')
+information.innerText = `This app is using Chrome (v${versions.chrome()}), Node.js (v${versions.node()}), and Electron (v${versions.electron()})`
 
 function showView(viewId) {
     document.querySelectorAll('.view').forEach(view => {
@@ -41,6 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     })
+    
+    window.electronAPI.setTitle("Nebula Launcher - "+ langmap.get("viewname_home"))
     showView('homeView');
 });
   
