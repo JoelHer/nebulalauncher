@@ -8,7 +8,6 @@ langmap.set("home_title_recent", "Recently Played")
 langmap.set("home_title_currentfree", "Currently Free")
 
 var recentGames = null;
-
 var steamReady = false
 var steamCheckIntervalId = undefined
 
@@ -49,18 +48,46 @@ async function populateGrid() {
         console.log(lastPlayed)
 
         document.getElementById("recentGames").innerHTML = ""
-        lastPlayed.forEach(game => {
-            document.getElementById("recentGames").innerHTML += `<div class="card">
-            <div class="cardImage" style="background-image: url('./images/card/${game.appid}_library_600x900.jpg');">
-                </div>
-                    <div class="cardShadow">
-                </div>
-            </div>`
+        lastPlayed.forEach((game, index) => {
+
+            setTimeout(()=>{
+                window.electronAPI.checkFileExist("./images/card/"+game.appid+"_library_600x900.jpg").then((r)=>{
+                    document.getElementById("recentGames").innerHTML += `
+                    <div class="card">
+                        <div class="cardImage" id="recentGames_${game.appid}" style="`+((r)?`background-image: url('./images/card/${game.appid}_library_600x900.jpg');`:"")+`">
+                            ${(!r)?'<div class="spinner"><div class="double-bounce1"></div><div class="double-bounce2"></div></div>':''}
+                        </div>
+                        <div class="cardShadow">
+                        </div>
+                    </div>`
+                    setTimeout(()=>{
+                        if (r) {
+                            document.getElementById(`recentGames_${game.appid}`).style.opacity = "100%"
+                        } else {
+                            window.electronAPI.pushImageResolver(
+                                {
+                                    appid: game.appid,
+                                    type: "card",
+                                    file: game.appid+"_library_600x900.jpg",
+                                    resolved: false,
+                                    processing: false,
+                                    error: false
+                                }
+                            ).then((queue) => {
+                                console.log(queue)
+                            })
+                        }
+                    },20)
+                })
+            },50*index)
         });
     })
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+   
+
+
     steamCheckIntervalId = setInterval(()=> {
         if(!steamReady) {
             var re = window.electronAPI.getReadyStatus()
@@ -97,3 +124,13 @@ document.addEventListener('DOMContentLoaded', () => {
   
 
 
+window.electronAPI.onReceive('imageResolver-changed', (job) => {
+    console.log("imageResolver-changed", job); 
+    if(job.error == false && job.processing == false && job.resolved) {
+        try {
+            document.getElementById(`recentGames_${job.appid}`).innerHTML = ""
+            document.getElementById(`recentGames_${job.appid}`).style.opacity = "100%"
+            document.getElementById(`recentGames_${job.appid}`).style.backgroundImage = `url("./images/card/${job.appid}_library_600x900.jpg")`
+        } catch {}
+    }
+});

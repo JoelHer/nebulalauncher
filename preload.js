@@ -8,6 +8,14 @@ contextBridge.exposeInMainWorld('versions', {
 
 contextBridge.exposeInMainWorld('electronAPI', {
   setTitle: (title) => ipcRenderer.send('set-title', title),
+  checkFileExist: (path) => ipcRenderer.invoke('checkFileExist', path),
   getRecentGames: () => ipcRenderer.invoke('games:get-recents'),
-  getReadyStatus: () => ipcRenderer.invoke('getReadyStatus')
+  getReadyStatus: () => ipcRenderer.invoke('getReadyStatus'),
+  pushImageResolver: (image) => ipcRenderer.invoke('pushImageResolver', image),
+  onReceive: (channel, func) => {
+    let validChannels = ['imageResolver-changed'];
+    if (validChannels.includes(channel)) {
+      ipcRenderer.on(channel, (event, ...args) => func(...args));
+    }
+  }
 })

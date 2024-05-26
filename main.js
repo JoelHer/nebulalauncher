@@ -6,6 +6,48 @@ const axios = require('axios');
 const fs = require('fs');
 
 var steamConnected = false
+var imageResolver = []
+
+let imageResolverProxy = new Proxy(imageResolver, {
+    set(target, property, value) {
+      target[property] = value;
+      if (property !== "length") {
+        if (typeof value === "object" && value !== null) {
+            if (value.processing == false && value.resolved == false) {
+                var res = downloadImage(value.appid, './images/card')
+                res.then(() =>{
+                    imageResolver.forEach(job => {
+                        if (job.appid == value.appid) {
+                            job.resolved = true
+                            job.processing = false
+                            job.error = false
+                            win.webContents.send('imageResolver-changed', job);
+                        }
+                    })
+                }).catch((err) => {
+                    console.log("Error downloading image: ",err)
+                    imageResolver.forEach(job => {
+                        if (job.appid == value.appid) {
+                            job.resolved = true
+                            job.processing = false
+                            job.error = true
+                            console.log(`Error resolving image job for appid ${job.appid}`)
+                            win.webContents.send('imageResolver-changed', job);
+                        }
+                    })
+                })
+            }
+        } 
+      }
+      return true;
+    },
+    deleteProperty(target, property) {
+      delete target[property];
+      return true;
+    }
+});
+
+
 
 function handleSetTitle (event, title) {
     console.log("set-title: ",title)
@@ -15,6 +57,18 @@ function handleSetTitle (event, title) {
     win.setTitle(tString)
 }
 
+function hadleCheckFile(event, path) {
+    if (fs.existsSync(path)) {
+        return true
+    } else {
+        return false
+    }
+}
+
+function hadlePushImageResolver(event, image) {
+    imageResolverProxy.push(image)
+    return imageResolver
+}
 
 
 function getReadyStatus (event) {
@@ -29,10 +83,11 @@ async function handleGetRecents () {
     });
 }
 
+let win;
 const createWindow = () => {
     const primaryDisplay = screen.getPrimaryDisplay()
     const { width, height } = primaryDisplay.workAreaSize
-    const win = new BrowserWindow({
+    win = new BrowserWindow({
         width: parseInt(width*0.7),
         height: parseInt(height*0.7),
         minHeight: 600,
@@ -68,6 +123,8 @@ app.whenReady().then(() => {
     ipcMain.handle('games:get-recents', handleGetRecents)
     ipcMain.on('set-title', handleSetTitle)
     ipcMain.handle('getReadyStatus', getReadyStatus)
+    ipcMain.handle('checkFileExist', hadleCheckFile)
+    ipcMain.handle('pushImageResolver', hadlePushImageResolver)
     createWindow()
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
@@ -82,8 +139,6 @@ client.on('loggedOn', () => {
     console.log('Logged into Steam as ' + client.steamID.getSteam3RenderedID());
     
 });
-
-
 
 client.on('licenses', function(licenses) {
 	console.log('Our account owns ' + licenses.length + ' license' + (licenses.length == 1 ? '' : 's') + '.');
@@ -121,11 +176,6 @@ client.on('ownershipCached', async () => {
             }
         }
         steamConnected = true;
-        (async () => {
-            for (const appID of ownedGames) {
-                await downloadImage(appID, './images/card');
-            }
-        })();
     });
 });
 
@@ -151,7 +201,6 @@ async function downloadImage(appID, folderPath) {
         fs.mkdirSync(folderPath, { recursive: true });
 
         const writer = fs.createWriteStream(filePath);
-        //console.log(`Downloaded banner for AppID ${appID}`);
         response.data.pipe(writer);
 
         return new Promise((resolve, reject) => {
