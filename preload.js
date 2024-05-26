@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setTitle: (title) => ipcRenderer.send('set-title', title),
   checkFileExist: (path) => ipcRenderer.invoke('checkFileExist', path),
   getRecentGames: () => ipcRenderer.invoke('games:get-recents'),
+  getAllGames: () => ipcRenderer.invoke('games:get-all'),
   getReadyStatus: () => ipcRenderer.invoke('getReadyStatus'),
   pushImageResolver: (image) => ipcRenderer.invoke('pushImageResolver', image),
   onReceive: (channel, func) => {

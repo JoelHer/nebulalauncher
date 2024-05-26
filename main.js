@@ -83,6 +83,17 @@ async function handleGetRecents () {
     });
 }
 
+
+function handleGetAllGames () {
+    return new Promise((resolve, reject) => {
+        client.getUserOwnedApps(client.steamID.getSteamID64()).then(function(result) {
+            resolve(result)
+        })
+    });
+}
+
+
+
 let win;
 const createWindow = () => {
     const primaryDisplay = screen.getPrimaryDisplay()
@@ -121,6 +132,7 @@ app.on('window-all-closed', () => {
 
 app.whenReady().then(() => {
     ipcMain.handle('games:get-recents', handleGetRecents)
+    ipcMain.handle('games:get-all', handleGetAllGames)
     ipcMain.on('set-title', handleSetTitle)
     ipcMain.handle('getReadyStatus', getReadyStatus)
     ipcMain.handle('checkFileExist', hadleCheckFile)
