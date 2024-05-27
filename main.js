@@ -4,6 +4,12 @@ const SteamUser = require('steam-user');
 const client = new SteamUser();
 const axios = require('axios');
 const fs = require('fs');
+const cacheMgr = require('./modules/cache')
+async function initCache() {
+    await cacheMgr.initStorage(); 
+}
+initCache()
+
 
 var steamConnected = false
 var imageResolver = []
@@ -79,6 +85,7 @@ async function handleGetRecents () {
     return new Promise((resolve, reject) => {
         client.getUserOwnedApps(client.steamID.getSteamID64()).then(function(result) {
             resolve(result)
+            cacheMgr.storeData("recentGames", result)
         })
     });
 }
@@ -88,6 +95,7 @@ function handleGetAllGames () {
     return new Promise((resolve, reject) => {
         client.getUserOwnedApps(client.steamID.getSteamID64()).then(function(result) {
             resolve(result)
+            cacheMgr.storeData("allGames", result)
         })
     });
 }
@@ -137,10 +145,24 @@ app.whenReady().then(() => {
     ipcMain.handle('getReadyStatus', getReadyStatus)
     ipcMain.handle('checkFileExist', hadleCheckFile)
     ipcMain.handle('pushImageResolver', hadlePushImageResolver)
+
+    // Load Cache data
+    cacheMgr.getData("recentGames").then((d)=>{
+        if (d != null) {
+            win.webContents.send('cache', {"type":"recentGames","cache":d})
+        }
+    })
+
+    cacheMgr.getData("allGames").then((d)=>{
+        if (d != null) {
+            win.webContents.send('cache', {"type":"allGames","cache":d})
+        }
+    })
+    
     createWindow()
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
-        })
+    })
 })
 client.options.enablePicsCache = true;
 client.logOn({
@@ -177,11 +199,6 @@ client.on('ownershipCached', async () => {
                 const common = appinfo.common;
                 try { 
                     if (common.type == "Game") {
-                        //console.log(`--- ${common.name} ---`);
-                        //console.log(`App ID: ${appinfo.appid}`);
-                        //console.log(`Type: ${common.type}`);
-                        //console.log(`Missing Token: ${package.missingToken}`);
-                        //console.log('--- ---');
                         ownedGames.push(appinfo.appid)
                     }
                 } catch {}
@@ -197,9 +214,7 @@ async function downloadImage(appID, folderPath) {
     const url = `https://cdn.cloudflare.steamstatic.com/steam/apps/${appID}/library_600x900.jpg`;
     const filePath = path.join(folderPath, `${appID}_library_600x900.jpg`);
 
-    //check if image is already downloaded
     if (fs.existsSync(folderPath+`/${appID}_library_600x900.jpg`)) {
-        //console.log(`Image for AppID ${appID} already exists`);
         return;
     } 
 

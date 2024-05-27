@@ -14,7 +14,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getReadyStatus: () => ipcRenderer.invoke('getReadyStatus'),
   pushImageResolver: (image) => ipcRenderer.invoke('pushImageResolver', image),
   onReceive: (channel, func) => {
-    let validChannels = ['imageResolver-changed'];
+    let validChannels = ['imageResolver-changed', 'cache'];
     if (validChannels.includes(channel)) {
       ipcRenderer.on(channel, (event, ...args) => func(...args));
     }

@@ -37,13 +37,18 @@ function showView(viewId) {
     document.getElementById(viewId).style.display = 'block';
 }
   
-async function populateGrid(_id) {
+async function populateGrid(_id, data=null) {
     games = undefined
-    if (_id == "recentGames") {
+    if (_id == "recentGames" && data==null) {
         games = window.electronAPI.getRecentGames()
     }
-    if (_id == "allGames") {
+    if (_id == "allGames" && data==null) {
         games = window.electronAPI.getAllGames()
+    }
+    if (data) {
+        games = new Promise((resolve, reject) => {
+            resolve(data)
+        })
     }
     games.then(function(result) {
         var apps = result.apps
@@ -59,7 +64,7 @@ async function populateGrid(_id) {
                     window.electronAPI.checkFileExist("./images/card/"+game.appid+"_library_600x900.jpg").then((r)=>{
                         document.getElementById(_id).innerHTML += `
                         <div class="card">
-                            <div class="cardImage" id="${_id}_${game.appid}" style="`+((r)?`background-image: url('./images/card/${game.appid}_library_600x900.jpg');`:"")+`">
+                            <div class="cardImage card-appid_${game.appid}" id="${_id}_${game.appid}" style="`+((r)?`background-image: url('./images/card/${game.appid}_library_600x900.jpg');`:"")+`">
                                 ${(!r)?'<div class="spinner"><div class="double-bounce1"></div><div class="double-bounce2"></div></div>':''}
                             </div>
                             <div class="cardShadow">
@@ -93,7 +98,7 @@ async function populateGrid(_id) {
                     window.electronAPI.checkFileExist("./images/card/"+game.appid+"_library_600x900.jpg").then((r)=>{
                         document.getElementById(_id).innerHTML += `
                         <div class="card">
-                            <div class="cardImage" id="${_id}_${game.appid}" style="`+((r)?`background-image: url('./images/card/${game.appid}_library_600x900.jpg');`:"")+`">
+                            <div class="cardImage card-appid_${game.appid}" id="${_id}_${game.appid}" style="`+((r)?`background-image: url('./images/card/${game.appid}_library_600x900.jpg');`:"")+`">
                                 ${(!r)?'<div class="spinner"><div class="double-bounce1"></div><div class="double-bounce2"></div></div>':''}
                             </div>
                             <div class="cardShadow">
@@ -125,9 +130,6 @@ async function populateGrid(_id) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-   
-
-
     steamCheckIntervalId = setInterval(()=> {
         if(!steamReady) {
             var re = window.electronAPI.getReadyStatus()
@@ -149,7 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (langmap.get(element.innerText.substring(1))) {
                 element.innerText = langmap.get(element.innerText.substring(1))
             } else {
-
                 console.error("Error: Could not find language string for: "+element.innerText.substring(1))
                 element.innerText = "No key named '"+element.innerText+"' in langmap"
             }
@@ -166,12 +167,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 window.electronAPI.onReceive('imageResolver-changed', (job) => {
-    console.log("imageResolver-changed", job); 
-    if(job.error == false && job.processing == false && job.resolved) {
-        try {
-            document.getElementById(`recentGames_${job.appid}`).innerHTML = ""
-            document.getElementById(`recentGames_${job.appid}`).style.opacity = "100%"
-            document.getElementById(`recentGames_${job.appid}`).style.backgroundImage = `url("./images/card/${job.appid}_library_600x900.jpg")`
-        } catch {}
-    }
+    setTimeout(()=>{
+        if(job.error == false && job.processing == false && job.resolved) {
+            try {
+                els = document.getElementsByClassName(`card-appid_${job.appid}`)
+                for (i in els) {
+                    var element = els[i] 
+                    element.innerHTML = ""
+                    element.style.opacity = "100%"
+                    element.style.backgroundImage = `url("./images/card/${job.appid}_library_600x900.jpg")`
+                }
+            } catch {}
+        }
+    },100)
+});
+
+window.electronAPI.onReceive('cache', (cdata) => {
+    populateGrid(cdata.type, cdata.cache)
 });
