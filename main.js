@@ -20,7 +20,10 @@ let imageResolverProxy = new Proxy(imageResolver, {
       if (property !== "length") {
         if (typeof value === "object" && value !== null) {
             if (value.processing == false && value.resolved == false) {
-                var res = downloadImage(value.appid, './images/card')
+                var res = downloadImage(value.appid, './images/card', 'library_600x900')
+                var res2 = downloadImage(value.appid, './images/hero', 'library_hero')
+                var res2 = downloadImage(value.appid, './images/hero', 'library_hero_blur')
+                var res2 = downloadImage(value.appid, './images/logo', 'logo', 'png')
                 res.then(() =>{
                     imageResolver.forEach(job => {
                         if (job.appid == value.appid) {
@@ -210,11 +213,11 @@ client.on('ownershipCached', async () => {
 
 
 
-async function downloadImage(appID, folderPath) {
-    const url = `https://cdn.cloudflare.steamstatic.com/steam/apps/${appID}/library_600x900.jpg`;
-    const filePath = path.join(folderPath, `${appID}_library_600x900.jpg`);
+async function downloadImage(appID, folderPath, type, format="jpg") {
+    const url = `https://cdn.cloudflare.steamstatic.com/steam/apps/${appID}/${type}.${format}`;
+    const filePath = path.join(folderPath, `${appID}_${type}.jpg`);
 
-    if (fs.existsSync(folderPath+`/${appID}_library_600x900.jpg`)) {
+    if (fs.existsSync(folderPath+`/${appID}_${type}.jpg`)) {
         return;
     } 
 
