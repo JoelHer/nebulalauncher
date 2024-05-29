@@ -329,3 +329,70 @@ body {
       -webkit-transform: scale(1.0);
     }
 }
+
+.lib-game {  display: grid;
+    grid-template-columns: 350px 1fr;
+    grid-template-rows: 1fr;
+    gap: 0px 0px;
+    grid-auto-flow: row;
+    grid-template-areas:
+      "lib-left lib-right";
+}
+  
+.lib-left { 
+    min-height: 600px;
+    margin-right: 20px;
+    background-color: #26292F;
+    border-radius: 23px;
+    display: grid; 
+    grid-template-columns: 1fr; 
+    grid-template-rows: 300px 1fr; 
+    gap: 0px 0px; 
+    grid-template-areas: 
+    "lib-left-top"
+    "lib-left-body"; 
+    grid-area: lib-left;
+}
+
+.lib-right { 
+    width: calc(100% - 35px); 
+    background-color: #26292F;
+    min-height: 600px;
+    border-radius: 23px;
+    grid-area: lib-right; 
+}
+
+.lib-left-top { 
+    height: 180px;
+    grid-area: lib-left-top; 
+    display: grid; 
+    grid-template-columns: 120px 1fr; 
+    grid-template-rows: 1fr; 
+    gap: 0px 0px; 
+    grid-template-areas: 
+      "lib-left-top-left lib-left-top-right"; 
+}
+
+.lib-left-body { grid-area: lib-left-body; }
+.lib-left-top-left { 
+    grid-area: lib-left-top-left;
+    display: flex;
+    justify-content: center;
+    align-items: end;
+}
+
+.lib-left-top-left-gameicon {
+    height: 100px;
+    width: 100px;
+    background-color: #383d48;
+    border-radius: 23px;
+}
+
+.lib-left-top-right { 
+    grid-area: lib-left-top-right;
+    display: flex;
+    justify-content: end;
+    flex-direction: column;
+}
+  
+

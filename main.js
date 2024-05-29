@@ -191,10 +191,12 @@ client.on('ownershipCached', async () => {
         excludeFree: false,
         excludeShared: false
     };
-
+    
     const ownedAppIDs = client.getOwnedApps(filterOptions);
     let ownedGames = []
     client.getProductInfo(ownedAppIDs, [], (apps, packages) => {
+        cacheMgr.storeData('ownedApps',apps)
+        cacheMgr.storeData('ownedApps',packages)
         for (const packageId in packages) {
             if (packages.hasOwnProperty(packageId)) {
                 const package = packages[packageId];
