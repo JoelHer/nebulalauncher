@@ -20,7 +20,7 @@ let imageResolverProxy = new Proxy(imageResolver, {
       if (property !== "length") {
         if (typeof value === "object" && value !== null) {
             if (value.processing == false && value.resolved == false) {
-                var res = downloadImage(value.appid, './images/card', 'library_600x900')
+                var res = downloadImage(value.appid, value.directory, value.type)
                 var res2 = downloadImage(value.appid, './images/hero', 'library_hero')
                 var res2 = downloadImage(value.appid, './images/hero', 'library_hero_blur')
                 var res2 = downloadImage(value.appid, './images/logo', 'logo', 'png')
@@ -30,6 +30,7 @@ let imageResolverProxy = new Proxy(imageResolver, {
                             job.resolved = true
                             job.processing = false
                             job.error = false
+                            job.file = value.directory+`/${value.appid}_${value.type}.jpg`
                             win.webContents.send('imageResolver-changed', job);
                         }
                     })
@@ -204,6 +205,7 @@ client.on('ownershipCached', async () => {
                 const common = appinfo.common;
                 try { 
                     if (common.type == "Game") {
+                        console.log("CommonIcon for ", common.name, " (",appinfo.appid,"): ", common.clienticon)
                         ownedGames.push(appinfo.appid)
                     }
                 } catch {}

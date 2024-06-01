@@ -115,7 +115,6 @@ body {
 }
 
 .navbar-main { 
-    margin-top: 55px;
     grid-area: navbar-main; 
     display: flex;
     flex-direction: column;
@@ -123,7 +122,24 @@ body {
     gap: 7.5px;
 }
 
-.navbar-main div {
+.navbar-main .navbuttons {
+    height: 48px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+.navbuttonsArrow {
+    margin-top: 6px;
+    background-color: transparent;
+    border: none;
+    width: 25px;
+    height: 35px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.navbar-main .navbaritem {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -133,7 +149,7 @@ body {
     cursor: pointer;
 }
 
-.navbar-main div:hover {
+.navbar-main .navbaritem:hover {
     background-color: #383d48;
     transition: background-color 60ms linear;
     filter: drop-shadow(0px 2px 3px #00000060);
@@ -212,8 +228,20 @@ body {
     height: 100%;
     background-color: #17181C;
     border-top-left-radius: 23px;
+
 }
-  
+
+.main-container-inner .main-container-inner {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: -1;
+    border-top-left-radius: 23px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
 .cardGrid {
     padding-bottom: 10px;
     margin-left: -20px;
@@ -363,36 +391,39 @@ body {
 }
 
 .lib-left-top { 
+    position: relative;
     height: 180px;
-    grid-area: lib-left-top; 
-    display: grid; 
-    grid-template-columns: 120px 1fr; 
-    grid-template-rows: 1fr; 
-    gap: 0px 0px; 
-    grid-template-areas: 
-      "lib-left-top-left lib-left-top-right"; 
 }
 
-.lib-left-body { grid-area: lib-left-body; }
-.lib-left-top-left { 
-    grid-area: lib-left-top-left;
-    display: flex;
-    justify-content: center;
-    align-items: end;
+.lib-left-body { 
+    grid-area: lib-left-body; 
+    height: calc(100% + 120px);
+    margin-top: -120px;
 }
 
-.lib-left-top-left-gameicon {
-    height: 100px;
-    width: 100px;
-    background-color: #383d48;
-    border-radius: 23px;
+.lib-left-top-bg {
+    height: calc(120px);
+    width: 330px;
+    position: absolute;
+    background-image: url("https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/730/page_bg_raw.jpg");
+    background-repeat: repeat-y;
+    -webkit-mask: linear-gradient(0deg, transparent, black 100%);
+    background-size: cover;
+    z-index: 0;
+    border-top-left-radius: 23px;
+    border-top-right-radius: 23px;
 }
 
-.lib-left-top-right { 
-    grid-area: lib-left-top-right;
-    display: flex;
-    justify-content: end;
-    flex-direction: column;
+.lib-left-top-logo{
+    margin-top: 35px;
+    z-index: 1;
+    background-image: url("https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/730/logo.png");
+    position: absolute;
+    width: 100%;
+    height: 140px;
+    background-repeat: no-repeat;
+    background-size: 250px;
+    background-position-x: center;
 }
   
 
