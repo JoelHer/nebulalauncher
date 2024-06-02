@@ -106,6 +106,22 @@ function nav(_t) {
 function navByName(_n, _setTitle=true) {
     args = [...arguments]
     args.shift()
+    args.shift()
+
+    console.log("VIEWNMAME: ", _n, " ARGS: ", args[0][0])
+
+    if (_n == "library" && returnAID(args[0])) {
+        var e = document.getElementsByClassName("lib-left-top-bg")
+        for (i in e) {
+            e[i].style = `background-image: url("https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${returnAID(args[0][0])}/page_bg_raw.jpg")`
+        }
+
+        e = document.getElementsByClassName("lib-left-top-logo")
+        for (i in e) {
+            e[i].style = `background-image: url("https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${returnAID(args[0][0])}/logo.png")`
+        }
+    }
+
     var els = document.getElementsByClassName("selected")
     try {
         for (i in els)  {
@@ -240,6 +256,10 @@ async function populateGrid(_id, data=null) {
 }
 
 function returnAID(_iS) {
+    console.log(_iS)
+    if (Array.isArray(_iS)) {
+        _iS = _iS[0]
+    }
     const prefix = "aID:";
     if (_iS.startsWith(prefix)) {
       return _iS.slice(prefix.length);
@@ -249,6 +269,7 @@ function returnAID(_iS) {
 }
 
 function navLibrary(_appId) {
+    /*
     var e = document.getElementsByClassName("lib-left-top-bg")
     for (i in e) {
         e[i].style = `background-image: url("https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${_appId}/page_bg_raw.jpg")`
@@ -258,6 +279,7 @@ function navLibrary(_appId) {
     for (i in e) {
         e[i].style = `background-image: url("https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${_appId}/logo.png")`
     }
+    */
     
     currentNavigation.set("library%aID:"+_appId)
     var _c = currentNavigation.get().split("%")
