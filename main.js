@@ -4,6 +4,10 @@ const SteamUser = require('steam-user');
 const client = new SteamUser();
 const axios = require('axios');
 const fs = require('fs');
+const ps = require('ps-node');
+const { performance } = require('perf_hooks');
+const regedit = require('regedit').promisified
+const { exec } = require('child_process');
 const cacheMgr = require('./modules/cache')
 async function initCache() {
     await cacheMgr.initStorage(); 
@@ -75,6 +79,42 @@ function hadleCheckFile(event, path) {
     }
 }
 
+
+function handleRunGame(event, appid) {
+    const command = 'start steam://run/'+appid;
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error executing command: ${error}`);
+            return;
+        }
+
+        if (stderr) {
+            console.error(`stderr: ${stderr}`);
+            return;
+        }
+
+        win.webContents.send('game:runStateChanged', {"appid":appid,"state":"started"})
+
+        var isChecking = false
+
+        var intervalID = setInterval(()=> {
+            if (isChecking) return;
+            isChecking = true
+            const start = performance.now();
+            getRunningSteamGames().then((e)=>{
+                if(e.length != 0) {
+                    console.log(e)
+                    const end = performance.now();
+                    clearInterval(intervalID)
+                    console.log(`Time taken to execute lookup is ${end - start}ms.`);
+                }
+                isChecking = false
+            })
+        },5000)
+    });
+}
+
+
 function hadlePushImageResolver(event, image) {
     imageResolverProxy.push(image)
     return imageResolver
@@ -145,6 +185,7 @@ app.on('window-all-closed', () => {
 app.whenReady().then(() => {
     ipcMain.handle('games:get-recents', handleGetRecents)
     ipcMain.handle('games:get-all', handleGetAllGames)
+    ipcMain.handle('games:run', handleRunGame)
     ipcMain.on('set-title', handleSetTitle)
     ipcMain.handle('getReadyStatus', getReadyStatus)
     ipcMain.handle('checkFileExist', hadleCheckFile)
@@ -249,3 +290,46 @@ async function downloadImage(appID, folderPath, type, format="jpg") {
 client.on('error', (err) => {
     console.error('An error occurred:', err);
 });
+
+/*
+async function main() {
+    var listResult = await regedit.list('HKCU\\Software\\Valve\\Steam\\Apps').catch((e)=>{
+        console.log(e)
+    })
+    const keys = listResult['HKCU\\Software\\Valve\\Steam\\Apps'].keys
+    keys.forEach((_x)=> {
+        const x = _x
+        regedit.list('HKCU\\Software\\Valve\\Steam\\Apps\\'+x).then((e)=>{
+            if (e['HKCU\\Software\\Valve\\Steam\\Apps\\'+x].values.Name) {
+                console.log(e['HKCU\\Software\\Valve\\Steam\\Apps\\'+x].values.Name.value, ", Installed: ",e['HKCU\\Software\\Valve\\Steam\\Apps\\'+x].values.Installed.value)
+            } 
+        }).catch((e)=>{
+            console.log(e)
+        })
+    })
+}
+*/
+
+async function getRunningSteamGames() {
+    return new Promise((resolve, reject) => {
+        regedit.list('HKCU\\Software\\Valve\\Steam\\Apps').then((listResult)=>{
+            const keys = listResult['HKCU\\Software\\Valve\\Steam\\Apps'].keys
+            var runningGames = []
+            keys.forEach((_x)=> {
+                const x = _x
+                regedit.list('HKCU\\Software\\Valve\\Steam\\Apps\\'+x).then((e)=>{
+                    if (e['HKCU\\Software\\Valve\\Steam\\Apps\\'+x].values.Name && e['HKCU\\Software\\Valve\\Steam\\Apps\\'+x].values.Running.value) {
+                        runningGames.push(x)
+                    } 
+                }).catch((e)=>{
+                    reject(e)
+                })
+            })
+            resolve(runningGames)
+        }).catch((e)=>{
+            reject(e)
+        })
+    })
+
+}
+

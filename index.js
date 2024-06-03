@@ -103,6 +103,10 @@ function nav(_t) {
     showView(_t.id)
 }
 
+const handleRunGameClick = (_appId) => {
+    window.electronAPI.runGame(_appId)
+}
+
 function navByName(_n, _setTitle=true) {
     args = [...arguments]
     args.shift()
@@ -119,6 +123,16 @@ function navByName(_n, _setTitle=true) {
         e = document.getElementsByClassName("lib-left-top-logo")
         for (i in e) {
             e[i].style = `background-image: url("https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${returnAID(args[0][0])}/logo.png")`
+        }
+
+        const runGameButtons = document.getElementsByClassName("runGame");
+
+        for (let i = 0; i < runGameButtons.length; i++) {
+            const button = runGameButtons[i];
+            button.setAttribute('data-appid', returnAID(args[0][0]))
+            const appId = button.getAttribute('data-appid');
+            button.removeEventListener("click", handleRunGameClick);
+            button.addEventListener("click", () => handleRunGameClick(appId));
         }
     }
 
@@ -347,6 +361,27 @@ window.electronAPI.onReceive('imageResolver-changed', (job) => {
     },100)
 });
 
-window.electronAPI.onReceive('cache', (cdata) => {
-    populateGrid(cdata.type, cdata.cache)
+window.electronAPI.onReceive('cache', (edata) => {
+    populateGrid(edata.type, edata.cache)
+});
+
+window.electronAPI.onReceive('game:runStateChanged', (edata) => {
+    console.log(edata)
+    const runGameButtons = document.getElementsByClassName("runGame");
+
+    for (let i = 0; i < runGameButtons.length; i++) {
+        const button = runGameButtons[i];
+        const appId = button.getAttribute('data-appid');
+        if (!appId) return;
+
+        if (appId == edata.appid) {
+            if (edata.state == "started") {
+                button.classList.add("started");
+                button.innerHTML = `<span class="loader"></span>`
+            }
+            if (edata.state == "stopped") {
+                button.classList.remove("started");
+            }
+        }
+    }
 });
