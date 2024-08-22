@@ -12,7 +12,7 @@
     "electron": "^30.0.8"
   },
   "dependencies": {
-    "axios": "^1.7.2",
+    "axios": "^1.7.4",
     "node-persist": "^4.0.1",
     "ps-node": "^0.1.6",
     "regedit": "^5.1.3",
